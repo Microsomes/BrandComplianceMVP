@@ -1,0 +1,26 @@
+ideas:
+
+Use a Web Scraper API to tackle common business challenges like aggregating 
+product prices, monitoring competitors, 
+or collecting reviews across platforms. 
+Use Bright Data’s Web Scraper API for efficient and scalable data collection.
+
+
+Company Brand Compliance 
+
+S: I am Apple and i want to ensure if users on certain websites such as
+    - Carphone Warehouse
+    - Vodafone
+    - Amazon UK
+
+Search for the term Iphone, does not get suggest any phone that is not Iphone or apple related
+
+
+Search Compliance Feature
+
+
+Terms: (search per day)
+Apple Phone -> if no violations -> score = 1, Violation = Score =0
+
+
+//score per month should be 25 or fail for that month
