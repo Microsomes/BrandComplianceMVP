@@ -1,0 +1,65 @@
+[
+  {
+    "name": "iPhone 16",
+    "img": "https://static.giffgaff.com/images/phones/products/iphone-16/ultramarine/120x210.png",
+    "price": "£32.34/mo",
+    "term": "for 36 months",
+    "condition": "new"
+  },
+  {
+    "name": "iPhone 16 Pro",
+    "img": "https://static.giffgaff.com/images/phones/products/iphone-16-pro/desert-titanium/120x210.png",
+    "price": "£38.73/mo",
+    "term": "for 36 months",
+    "condition": "new"
+  },
+  {
+    "name": "iPhone 16 Pro Max",
+    "img": "https://static.giffgaff.com/images/phones/products/iphone-16-pro-max/desert-titanium/120x210.png",
+    "price": "£44.84/mo",
+    "term": "for 36 months",
+    "condition": "new"
+  },
+  {
+    "name": "iPhone 16 Plus",
+    "img": "https://static.giffgaff.com/images/phones/products/iphone-16-plus/ultramarine/120x210.png",
+    "price": "£35.67/mo",
+    "term": "for 36 months",
+    "condition": "new"
+  },
+  {
+    "name": "iPhone 13",
+    "img": "https://static.giffgaff.com/images/phones/products/iphone-13/midnight/120x210.png",
+    "price": "£23.31/mo",
+    "term": "for 36 months",
+    "condition": "new"
+  },
+  {
+    "name": "iPhone 15",
+    "img": "https://static.giffgaff.com/images/phones/products/iphone-15/black/120x210.png",
+    "price": "£29.70/mo",
+    "term": "for 36 months",
+    "condition": "new"
+  },
+  {
+    "name": "iPhone 15 Plus",
+    "img": "https://static.giffgaff.com/images/phones/products/iphone-15-plus/black/120x210.png",
+    "price": "£32.62/mo",
+    "term": "for 36 months",
+    "condition": "new"
+  },
+  {
+    "name": "iPhone 14",
+    "img": "https://static.giffgaff.com/images/phones/products/iphone-14/midnight/120x210.png",
+    "price": "£26.64/mo",
+    "term": "for 36 months",
+    "condition": "new"
+  },
+  {
+    "name": "iPhone SE",
+    "img": "https://static.giffgaff.com/images/phones/products/iphone-se/midnight/120x210.png",
+    "price": "£19.98/mo",
+    "term": "for 36 months",
+    "condition": "new"
+  }
+]
