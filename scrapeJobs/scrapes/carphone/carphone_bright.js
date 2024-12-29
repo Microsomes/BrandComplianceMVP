@@ -5,10 +5,37 @@ const moment = require("moment");
 require('dotenv').config()
 console.log(process.env) 
 
+const {
+    S3Client,
+    PutObjectCommand,
+} = require("@aws-sdk/client-s3")
+
+const s3Client = new S3Client({ region: process.env.AWS_REGION,
+    credentials:{
+        accessKeyId: process.env.AWS_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+})
+
 
 const puppeteer = require('puppeteer-core');
 
 const rootdir = process.env.ROOT_DIR;
+
+
+const getSession = async () =>{
+    const browser = await puppeteer.connect({
+        browserWSEndpoint: process.env.BRIGHT_DATA_ENDPOINT
+    });
+
+    const page = await browser.newPage();
+
+    return {
+        browser,
+        page
+    }
+    
+}
 
 fs.mkdirSync(rootdir, { recursive: true });
 
@@ -201,7 +228,7 @@ const getPhoneAvailableColorandStorage = async (page) => {
 
 
 //helper function to build up all combinations
-const getAllAvailablePhoneCombinations = async (page, allPhonesLinks, useCache) => {
+const getAllAvailablePhoneCombinations = async (allPhonesLinks, useCache) => {
 
     const date = moment().format("YYYY-MM-DD");
     const fname = `./${rootdir}/carphonewarehouse_phones6-${date}.json`;
@@ -216,6 +243,10 @@ const getAllAvailablePhoneCombinations = async (page, allPhonesLinks, useCache) 
     var result = [];
 
     for(var i = 0; i<allPhonesLinks.length; i++){
+
+        const {browser, page} = await getSession();
+
+
       try{
         var phone = allPhonesLinks[i];
         console.log(phone.url);
@@ -245,7 +276,10 @@ const getAllAvailablePhoneCombinations = async (page, allPhonesLinks, useCache) 
   
         console.log(`Getting Phones:(${n}) combinations ${i}/${allPhonesLinks.length}`);
       }catch(e){
-          console.log(e);
+          console.log("error");
+      }finally{
+        console.log("done");
+        await browser.close();
       }
   
   
@@ -265,7 +299,9 @@ const getPlanByUrl = async (page, url) => {
             attempts++;
             console.log(`Attempt ${attempts} to load the URL...`);
 
-            
+            const browser = await puppeteer.connect({
+                browserWSEndpoint: process.env.BRIGHT_DATA_ENDPOINT
+            });
 
             const page = await browser.newPage();
             
@@ -367,116 +403,137 @@ const getAllPlansFromCombination = async (page, phone) => {
 }
 }
 
-//find plan by url
-const findPlansFromArray = (arr, url) => {
-    console.log(url);
-    console.log(arr.length, url)
-
-    var toReturn = false;
-
-    arr.forEach((a)=>{
-        if(a.combination.url == url){
-            toReturn = a;
-        }
-    });
-
-    if(toReturn){
-
-        if(toReturn.plans.length >1){
-            return true
-        }else{
-            return false;
-        }
-
-    }
 
 
-    return toReturn;
 
-}
 
-//returns index of url
-const findIndex = (arr, url) => {
-   
-    var toReturn = -1;
-
-    for (let i = 0; i < arr.length; i++) {
-        if(arr[i].combination.url == url){
-            toReturn = i;
-            console.log(arr[i].combination.url)
-            break;
-        }
-    }
-
-    return toReturn;
-
-}
-
-//semi working, needed for creating resumbale scrapping, but ran out of time so this is dead code for now
-const mergeIntoPlan = (allPlans, plans)=>{
-
-    var toReturn = allPlans;
-
-    plans.forEach((p)=>{
-        
-        const index = findIndex(allPlans, p.combination.url);
-
-       
-        toReturn[index].plans = p.plans;
-
-    })
-    
-
-    return toReturn;
-
-}
 
 const start = async (tryResume) => {
 
-  //launch browser using bright datas endpoint
-  const browser = await puppeteer.connect({
-    browserWSEndpoint: process.env.BRIGHT_DATA_ENDPOINT
-  });
+    const {browser, page} = await getSession();
+    
+    await page.goto("https://www.carphonewarehouse.com/mobiles/pay-monthly", {
+        waitUntil: "networkidle2",
+    });
 
-  const date = moment().format("YYYY-MM-DD");
+    //accept cookies
+    await page.evaluate(() => {
+        document.querySelector("#onetrust-accept-btn-handler").click();
+    });
 
-  const page = await browser.newPage();
+    //fetch all phone name and links of monthly plans
+    var allPhoneLinks = await getLinks(page,10,true);
 
-  await page.goto("https://www.carphonewarehouse.com/mobiles/pay-monthly", {
-    waitUntil: "networkidle2",
-  });
+    console.log(allPhoneLinks.length);
 
-  //accept cookies
-  await page.evaluate(() => {
-    document.querySelector("#onetrust-accept-btn-handler").click();
-  });
+    await browser.close();
 
-  await sleep(5000);
+    const allPhonesWithCombinations = await getAllAvailablePhoneCombinations(allPhoneLinks,true);
 
+    
+    var allPlans = [];
 
+    for(var i = 0; i<allPhonesWithCombinations.length; i++){
+      const phone = allPhonesWithCombinations[i];
+     
+      
+      for (var j = 0; j < phone.combinations.length; j++) {
+        const combination = phone.combinations[j];
 
-  //first collect all names and urls, to then go back to get the details like, storage,color price
-  var allPhonesLinks = await getLinks(page,10,true);
+        combination.plans = [];
+        
+        try{
+        const {browser, page} = await getSession();
 
-  //get all available combinations
-  const availableCombinations = await getAllAvailablePhoneCombinations(page,allPhonesLinks,true);
+        //allow intercept
+        await page.setRequestInterception(true);
 
-  var allPlans = [];
-
-
-  for(var i = 0; i<availableCombinations.length; i++){
-    //scrape all plans
-    const plans = await getAllPlansFromCombination(page,availableCombinations[i]);
-
-    allPlans.push(plans);
-
-    fs.writeFileSync(`./${rootdir}/carphonewarehouse_phones6-plans5-${moment().format("YYYY-MM-DD")}.json`,JSON.stringify(allPlans,null,2));
-
-    console.log(`${i}/${availableCombinations.length}`);
-  }
+        page.on('request', (request) => {
+            if (request.resourceType() === 'image'
+                    || request.resourceType() === 'script'
+                    //gif
+                    || request.resourceType() === 'font'
+                    || request.resourceType() === 'other'
 
 
-  await browser.close();
+        
+        ) {
+              request.abort();
+            } else {
+              request.continue();
+            }
+          
+        })
+        
+        await page.goto(combination.url+"/deals", {
+            waitUntil: "networkidle2",
+        });
+
+        var plans = await page.evaluate(()=>{
+            var pl = [];
+            document.querySelectorAll(".deal-item").forEach((deal)=>{
+
+                var plan = {
+                    monthly: deal.querySelectorAll(".deal-item-price")[0].innerText.split("†\nper month")[0].trim(),
+                    upfront: deal.querySelectorAll(".deal-item-price")[1].innerText.split("\nupfront")[0].trim(),
+                    network: deal.querySelectorAll(".deal-item-details li img")[0].getAttribute("alt"),
+                    data: deal.querySelectorAll(".deal-item-details li")[1].innerText.split("\nData")[0].trim(),
+                    minutes: deal.querySelectorAll(".deal-item-details li")[2].innerText.split("\nMinutes")[0].trim(),
+                    texts: deal.querySelectorAll(".deal-item-details li")[3].innerText.split("\nTexts")[0].trim(),
+                    duration: deal.querySelectorAll(".deal-item-details li small")[0].textContent.split("\n")[1].trim()
+                }
+
+                pl.push(plan);
+
+            });
+
+            return pl;
+        });
+
+        console.log(plans);
+
+        phone.combinations[j].plans = plans;
+
+        await browser.close();
+
+
+
+        }catch(e){
+            
+        }finally{
+            console.log(`${j}/${phone.combinations.length}`);
+        }
+
+      
+      }
+
+      console.log(`${i}/${allPhonesWithCombinations.length}`);
+
+      allPlans.push(phone);
+      fs.writeFileSync(`./${rootdir}/carphonewarehouse_phones6-plans5-${moment().format("YYYY-MM-DD")}.json`,JSON.stringify(allPlans,null,2));
+
+    }
+
+
+    //lets try and upload to s3 now
+    console.log("Uploading to S3");
+
+    
+    const command1 = new PutObjectCommand({
+        Body: JSON.stringify(allPlans, null, 2),
+        Bucket: process.env.S3_BUCKET,
+        Key: `carphonewarehouse_data-${moment().format("YYYY-MM-DD")}.json`
+    })
+
+    try{
+        const results = await s3Client.send(command1)
+        console.log(results)
+    }catch(e){
+        console.log(e);
+    }
+
+  
+ 
 };
 
 start(true);
