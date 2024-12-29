@@ -1,33 +1,99 @@
+BrightData Challenge - Monthly Phone Plans Aggregator
 
-https://dev.to/challenges/brightdata
+This project is part of the BrightData Web Scraper Challenge, aiming to aggregate monthly phone plans from Carphone Warehouse, including plans from Vodafone and ID Mobile. The goal is to efficiently scrape detailed data and present it in a user-friendly format.
+🚀 Challenge Prompt
 
-I am taking part in the BrightData challenge, i am from the UK.
+    Use a Web Scraper API to tackle common business challenges like aggregating product prices, monitoring competitors, or collecting reviews across platforms. Use Bright Data’s Web Scraper API for efficient and scalable data collection.
 
-Prompt:
-Use a Web Scraper API to tackle common business challenges like aggregating 
-product prices, monitoring competitors, 
-or collecting reviews across platforms. 
-Use Bright Data’s Web Scraper API for efficient and scalable data collection.
+🌟 Project Overview
+Objective
 
+    Scrape and aggregate Carphone Warehouse's monthly phone plans.
+    Collect details such as:
+        Phone models
+        Storage capacities
+        Available colors
+        Associated monthly plans
 
-Idea:
+Solution Highlights
 
+    Scrape the entire selection of phones and plans available on Carphone Warehouse.
+    Schedule scraping jobs to run daily or weekly to save costs and keep data fresh.
+    Use Bright Data’s browser-based scraper to bypass blocking mechanisms.
 
-Aggregate Monthly Phone plans from carphone warehouse.
-Carphone warehouse sells monthly phone contracts from vodafone and ID,
+🛠️ Technologies Used
+Technology	Purpose
+Bright Data Web Scraper API	Efficient and scalable web scraping, bypassing blocks with browser emulation.
+AWS ECS	Run scraping jobs in a containerized environment, ensuring scalability and efficiency.
+AWS S3	Store scraped data in structured JSON format, uploaded after each job.
+AWS CDK	Infrastructure as code to deploy and manage the scraping task definitions on ECS.
+Laravel	Backend framework to fetch and display scraped data from S3 for end users.
+📂 Project Structure
+Scraper Code
 
-i want to collect the entire selection of their phones and all their plans including capacity and storage of phones available
+    Path: scrapeJobs/scrapes/carphone/carphone_bright.js
+    Handles:
+        Fetching phone plans and details using Bright Data.
+        Structuring data into JSON.
+        Uploading the output to AWS S3.
 
+Backend Application
 
-I've used AWS ECS as my platform to run the scrape jobs,
+    Framework: Laravel
+    Fetches the data from S3 and provides an API to serve it to the front-end.
+    URL: ScraperBrightDataChallenge
 
-since it could take a 2-3 hours to scrape the entire website it should be done once daily or weekly to save money
+🖥️ Deployment Workflow
+Scraping Workflow:
 
-i've placed the code in scrapeJobs/scrapes/carphone/carphone_bright.js
+    Task Definition: Deployed using AWS CDK.
+    Execution: Scraper runs on AWS ECS as a scheduled job (daily/weekly).
+    Data Storage: Results are uploaded to AWS S3 in JSON format.
 
-I used Brightdatas webbrowser, to avoid any blocks
+Backend Workflow:
 
-I used AWS CDK to deploy this to my AWS Account and provision a task definition,
+    Data Fetching: Laravel application pulls the latest data from S3.
+    Data Presentation: Data is served through an interactive web application.
 
+🔧 Setup Instructions
+Prerequisites:
 
-This is a laravel project which i used to fetch the scraped data from s3, as once the scrape is completed it uploads the entire data to s3 per day.
+    AWS account with necessary permissions for ECS, S3, and CDK.
+    Bright Data account with access to the Web Scraper API.
+    Laravel installed for backend development.
+
+Steps:
+
+    Clone this repository:
+
+git clone https://github.com/your-repo-name.git
+cd your-repo-name
+
+Set up AWS credentials:
+
+export AWS_ACCESS_KEY_ID=your-access-key
+export AWS_SECRET_ACCESS_KEY=your-secret-key
+
+Deploy the ECS task using AWS CDK:
+
+cdk deploy
+
+Run the Laravel server:
+
+    php artisan serve
+
+🌐 Live Demo
+
+Check out the live application:
+👉 http://scraperbrightdatachallenge.phase2.maeplet.com/
+🚀 Future Enhancements
+
+    Add more data sources for comparative analysis.
+    Introduce analytics to monitor price trends over time.
+    Optimize the scraping process for faster results.
+
+🤝 Credits
+
+This project is built for the BrightData Challenge by a developer based in the UK. Special thanks to Bright Data, AWS, and the open-source community for their tools and resources.
+
+Let me know if you need further modifications! 🚀
