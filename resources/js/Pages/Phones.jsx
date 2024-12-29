@@ -111,7 +111,6 @@ export default function Phones() {
                                 <h2 className="text-xl font-semibold text-white">
                                     Plans for {selectedPhone.name}
                                 </h2>
-                                <p className="mt-2 text-gray-300">Total Cost of Ownership: £{totalCost}</p>
                                 <div className="mt-4">
                                     {selectedPhone.combinations.map((combination) => (
                                         <div key={combination.id} className="mt-4">
