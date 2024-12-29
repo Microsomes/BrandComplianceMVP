@@ -7,9 +7,10 @@ COPY package.json /app
 
 RUN npm install
 
-COPY . /app
+
 COPY .env /app/.env
 
+COPY carphone_bright.js /app/carphone.js
 
 
 CMD ["node", "carphone.js"]

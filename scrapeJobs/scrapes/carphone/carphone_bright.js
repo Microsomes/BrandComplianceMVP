@@ -40,7 +40,7 @@ const getSession = async () =>{
 fs.mkdirSync(rootdir, { recursive: true });
 
 var util = require('util');
-var log_file = fs.createWriteStream(__dirname + '/debug.log', {flags : 'w'});
+var log_file = fs.createWriteStream(rootdir + '/debug.log', {flags : 'w'});
 var log_stdout = process.stdout;
 
 
@@ -247,9 +247,37 @@ const getAllAvailablePhoneCombinations = async (allPhonesLinks, useCache) => {
         const {browser, page} = await getSession();
 
 
+      
+        
+
+
+        if(parseInt(process.env.MAX_LIMIT) && i > parseInt(process.env.MAX_LIMIT)){
+          console.log("Max limit reached");
+            break;
+        }
+
+
       try{
         var phone = allPhonesLinks[i];
         console.log(phone.url);
+
+
+
+        await page.setRequestInterception(true);
+
+        page.on('request', (request) => {
+            if (request.resourceType() === 'image'
+                    //gif
+                    || request.resourceType() === 'font'
+                    || request.resourceType() === 'other'
+        ) {
+                request.abort();
+            } else {
+    
+                request.continue();
+            }
+          })
+
         await page.goto(phone.url,{
             waitUntil: 'networkidle2'
         });
@@ -411,10 +439,29 @@ const getAllPlansFromCombination = async (page, phone) => {
 const start = async (tryResume) => {
 
     const {browser, page} = await getSession();
+
+    //allow page intercept
+    await page.setRequestInterception(true);
+
+    page.on('request', (request) => {
+        if (request.resourceType() === 'image'
+                //gif
+                || request.resourceType() === 'font'
+                || request.resourceType() === 'other'
+    ) {
+      console.log("aborting request");
+            request.abort();
+        } else {
+
+            request.continue();
+        }
+      })
     
     await page.goto("https://www.carphonewarehouse.com/mobiles/pay-monthly", {
         waitUntil: "networkidle2",
     });
+
+
 
     //accept cookies
     await page.evaluate(() => {
@@ -432,6 +479,8 @@ const start = async (tryResume) => {
 
     
     var allPlans = [];
+
+    try{
 
     for(var i = 0; i<allPhonesWithCombinations.length; i++){
       const phone = allPhonesWithCombinations[i];
@@ -512,8 +561,27 @@ const start = async (tryResume) => {
       allPlans.push(phone);
       fs.writeFileSync(`./${rootdir}/carphonewarehouse_phones6-plans5-${moment().format("YYYY-MM-DD")}.json`,JSON.stringify(allPlans,null,2));
 
+      const command1 = new PutObjectCommand({
+        Body: JSON.stringify(allPlans, null, 2),
+        Bucket: process.env.S3_BUCKET,
+        Key: `carphonewarehouse_data-${moment().format("YYYY-MM-DD")}.json`
+    })
+
+    try{
+        const results = await s3Client.send(command1)
+        console.log(results)
+    }catch(e){
+        console.log(e);
     }
 
+
+
+    }
+
+  }catch(e){
+    console.log("error")
+    console.log(e);
+  }finally{
 
     //lets try and upload to s3 now
     console.log("Uploading to S3");
@@ -532,6 +600,26 @@ const start = async (tryResume) => {
         console.log(e);
     }
 
+    //upload debug.log
+
+    const command2 = new PutObjectCommand({
+        Body: fs.readFileSync(`${rootdir}/debug.log`),
+        Bucket: process.env.S3_BUCKET,
+        Key: `carphonewarehouse_debug-${moment().format("YYYY-MM-DD")}.log`
+    })
+
+    try{
+        const results = await s3Client.send(command2)
+        console.log(results)
+    }catch(e){
+        console.log(e);
+    }finally{
+      console.log("Done");
+      process.exit(0);
+    }
+
+  }
+   
   
  
 };

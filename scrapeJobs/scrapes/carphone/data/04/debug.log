@@ -1,0 +1,165 @@
+[2024-12-29 18:40:59] 813
+[2024-12-29 18:41:03] [
+  {
+    monthly: '£29.99',
+    upfront: '£159.00',
+    network: 'idmobile',
+    data: '100GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£29.99',
+    upfront: '£119.00',
+    network: 'idmobile',
+    data: '100GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£29.99',
+    upfront: '£199.00',
+    network: 'idmobile',
+    data: 'Unlimited',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£39.00',
+    upfront: '£99.00',
+    network: 'vodafone',
+    data: '200GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£39.00',
+    upfront: '£139.00',
+    network: 'vodafone',
+    data: '200GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£45.00',
+    upfront: '£69.00',
+    network: 'vodafone',
+    data: 'Unlimited',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£45.00',
+    upfront: '£29.00',
+    network: 'vodafone',
+    data: 'Unlimited',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£35.99',
+    upfront: '£49.00',
+    network: 'idmobile',
+    data: '100GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£35.99',
+    upfront: '£9.00',
+    network: 'idmobile',
+    data: '100GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£29.99',
+    upfront: '£109.00',
+    network: 'idmobile',
+    data: '10GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£29.99',
+    upfront: '£139.00',
+    network: 'idmobile',
+    data: '500GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£29.99',
+    upfront: '£149.00',
+    network: 'idmobile',
+    data: '10GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£32.99',
+    upfront: '£79.00',
+    network: 'idmobile',
+    data: '100GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£29.99',
+    upfront: '£159.00',
+    network: 'idmobile',
+    data: 'Unlimited',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  },
+  {
+    monthly: '£33.99',
+    upfront: '£79.00',
+    network: 'idmobile',
+    data: '500GB',
+    minutes: 'Unlimited',
+    texts: 'Unlimited',
+    duration: '24'
+  }
+]
+[2024-12-29 18:41:03] 0/1
+[2024-12-29 18:41:03] 0/1
+[2024-12-29 18:41:03] Uploading to S3
+[2024-12-29 18:41:04] {
+  '$metadata': {
+    httpStatusCode: 200,
+    requestId: 'SYNTYT3X51Z12WY4',
+    extendedRequestId: 'kr3VrmANqxOHKZnCGEvc/h1fhhyJTb11rOVLpeqQPCbwnw5XxaEemfuSutD0BUA0zrw6UgkaKjM=',
+    cfId: undefined,
+    attempts: 1,
+    totalRetryDelay: 0
+  },
+  ETag: '"dc358d3801cffa0a58fa152f28febcbb"',
+  ServerSideEncryption: 'AES256'
+}
+[2024-12-29 18:41:04] {
+  '$metadata': {
+    httpStatusCode: 200,
+    requestId: 'S26EV96PTD9VKE7Q',
+    extendedRequestId: 'WwgA5WDDGeKlfi/CMolvpGcD2WsaS0z4kARL18mL0th3Rymbyqj5BzjiksPegfzdvPTW9sq0PXs=',
+    cfId: undefined,
+    attempts: 1,
+    totalRetryDelay: 0
+  },
+  ETag: '"f895d5aa1eb8aa231fa5883e2ca8bae9"',
+  ServerSideEncryption: 'AES256'
+}
