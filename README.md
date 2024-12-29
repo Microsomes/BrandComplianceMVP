@@ -62,25 +62,6 @@ Prerequisites:
     Bright Data account with access to the Web Scraper API.
     Laravel installed for backend development.
 
-Steps:
-
-    Clone this repository:
-
-git clone https://github.com/your-repo-name.git
-cd your-repo-name
-
-Set up AWS credentials:
-
-export AWS_ACCESS_KEY_ID=your-access-key
-export AWS_SECRET_ACCESS_KEY=your-secret-key
-
-Deploy the ECS task using AWS CDK:
-
-cdk deploy
-
-Run the Laravel server:
-
-    php artisan serve
 
 🌐 Live Demo
 
@@ -92,8 +73,8 @@ Check out the live application:
     Introduce analytics to monitor price trends over time.
     Optimize the scraping process for faster results.
 
+    If their was time...
+
 🤝 Credits
 
-This project is built for the BrightData Challenge by a developer based in the UK. Special thanks to Bright Data, AWS, and the open-source community for their tools and resources.
-
-Let me know if you need further modifications! 🚀
+This project is built for the BrightData Challenge by a developer based in the UK (ME (:). Special thanks to Bright Data, AWS, and the open-source community for their tools and resources.
