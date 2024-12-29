@@ -6,23 +6,34 @@ const fs = require("fs");
 const moment = require("moment");
 const { createHash } = require("crypto");
 
+require('dotenv').config()
+console.log(process.env) 
+
+
+
+const rootdir = process.env.ROOT_DIR;
+
+fs.mkdirSync(rootdir, { recursive: true });
+
 var util = require('util');
 var log_file = fs.createWriteStream(__dirname + '/debug.log', {flags : 'w'});
 var log_stdout = process.stdout;
 
 
+//set it so we can write to debug.log, needed for debugging
 console.log = function (d) {
     const timestamp = moment().format('YYYY-MM-DD HH:mm:ss'); // Format the timestamp
     const message = `[${timestamp}] ${util.format(d)}`; // Add timestamp to the message
   
     log_file.write(message + '\n'); // Write to file
     log_stdout.write(message + '\n'); // Write to console
-  };
+};
 
+//first get all the phone links, build up the list of phones
 const getLinks = async (page, maxPages, useCache) => {
 
     var date = moment().format("YYYY-MM-DD");
-    const fname = `./carphonewarehouse_links-${date}.json`;
+    const fname = `./${rootdir}/carphonewarehouse_links-${date}.json`;
 
     //check if exists
     if (fs.existsSync(fname) && useCache) {
@@ -69,6 +80,7 @@ const getLinks = async (page, maxPages, useCache) => {
   return allPhones;
 };
 
+//get extra details like potential colors and storage
 const getPhoneAvailableColorandStorage = async (page) => {
   var availableInterum = await page.evaluate(() => {
     var potentialColours = [];
@@ -191,10 +203,11 @@ const getPhoneAvailableColorandStorage = async (page) => {
 };
 
 
+//helper function to build up all combinations
 const getAllAvailablePhoneCombinations = async (page, allPhonesLinks, useCache) => {
 
     const date = moment().format("YYYY-MM-DD");
-    const fname = `./carphonewarehouse_phones5-${date}.json`;
+    const fname = `./${rootdir}/carphonewarehouse_phones6-${date}.json`;
 
     //check if exists
     if (fs.existsSync(fname) && useCache) {
@@ -220,6 +233,8 @@ const getAllAvailablePhoneCombinations = async (page, allPhonesLinks, useCache) 
        for(var j = 0; j<combinations.length; j++){
           combinations[j].url = phone.url+"-"+combinations[j].storage+"-"+combinations[j].color;
        }
+
+       const n =  phone.name.split("\n")[0];
   
        result.push({
         preData: {
@@ -229,9 +244,9 @@ const getAllAvailablePhoneCombinations = async (page, allPhonesLinks, useCache) 
         combinations
        })
   
-        fs.writeFileSync(`./carphonewarehouse_phones6-${moment().format("YYYY-MM-DD")}.json`,JSON.stringify(result,null,2));
+        fs.writeFileSync(`./${rootdir}/carphonewarehouse_phones6-${moment().format("YYYY-MM-DD")}.json`,JSON.stringify(result,null,2));
   
-        console.log(`${i}/${allPhonesLinks.length}`);
+        console.log(`Getting Phones:(${n}) combinations ${i}/${allPhonesLinks.length}`);
       }catch(e){
           console.log(e);
       }
@@ -242,6 +257,40 @@ const getAllAvailablePhoneCombinations = async (page, allPhonesLinks, useCache) 
     return result;
 }
 
+const getPlanByUrl = async (page, url) => {
+    console.log("Going to URL:", url);
+
+    const maxAttempts = 5; // Maximum retry attempts
+    let attempts = 0; // Current attempt count
+
+    while (attempts < maxAttempts) {
+        try {
+            attempts++;
+            console.log(`Attempt ${attempts} to load the URL...`);
+
+            // Navigate to the URL
+            await page.goto(url, {
+                waitUntil: 'networkidle2', // Wait until no network activity for at least 500ms
+                timeout: 30000, // Timeout for the navigation (30 seconds)
+            });
+
+            console.log("Page loaded successfully.");
+
+            return true; // Successful navigation
+        } catch (error) {
+            console.error(`Attempt ${attempts} failed: ${error.message}`);
+
+            if (attempts >= maxAttempts) {
+                console.error("Max attempts reached. Unable to load the URL.");
+                return false; // Return false if all attempts fail
+            }
+
+            console.log("Retrying...");
+        }
+    }
+};
+
+//perform the actual scrapping to get all the plans, requires loading and paginating, will attempt to go to a specific color and capacities deal page
 const getAllPlansFromCombination = async (page, phone) => {
 
     try{
@@ -252,27 +301,26 @@ const getAllPlansFromCombination = async (page, phone) => {
         const combination = phone.combinations[i];
         console.log(combination.url)
 
-        await page.goto(combination.url+"/deals",{
-            waitUntil: 'networkidle2'
-        });
+        await getPlanByUrl(page,combination.url+"/deals");
+
 
         //document.querySelectorAll(".deal-item")[0].querySelectorAll(".deal-item-price")
 
 
-        //lets load all plans, preload all then get the details
-        var currentPage = 0;
-        var maxPages = 20;
+        //lets load all plans, preload all then get the details, disable pagination to speed up transfer
+        // var currentPage = 0;
+        // var maxPages = 20;
 
-        for (var ii = 0; ii < maxPages; ii++) {
-            try {
-              await page.click(".load-more-deals-button");
-            } catch (e) {
-              //if not clickable move on
-              break;
-            }
-            console.log("loading more deals");
-            await page.waitForNetworkIdle();
-          }
+        // for (var ii = 0; ii < maxPages; ii++) {
+        //     try {
+        //       await page.click(".load-more-deals-button");
+        //     } catch (e) {
+        //       //if not clickable move on
+        //       break;
+        //     }
+        //     console.log("loading more deals");
+        //     await page.waitForNetworkIdle();
+        //   }
 
 
         var plans = await page.evaluate(()=>{
@@ -297,6 +345,8 @@ const getAllPlansFromCombination = async (page, phone) => {
             return pl;
         });
 
+        console.log(plans);
+
         console.log(`${i}/${phone.combinations.length}`);
         
         toReturn.push({
@@ -315,6 +365,7 @@ const getAllPlansFromCombination = async (page, phone) => {
 }
 }
 
+//find plan by url
 const findPlansFromArray = (arr, url) => {
     console.log(url);
     console.log(arr.length, url)
@@ -342,7 +393,7 @@ const findPlansFromArray = (arr, url) => {
 
 }
 
-
+//returns index of url
 const findIndex = (arr, url) => {
    
     var toReturn = -1;
@@ -359,6 +410,7 @@ const findIndex = (arr, url) => {
 
 }
 
+//semi working, needed for creating resumbale scrapping, but ran out of time so this is dead code for now
 const mergeIntoPlan = (allPlans, plans)=>{
 
     var toReturn = allPlans;
@@ -378,11 +430,12 @@ const mergeIntoPlan = (allPlans, plans)=>{
 }
 
 const start = async (tryResume) => {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    browserWSEndpoint:
-      "wss://brd-customer-hl_a55a480a-zone-scraping_browser1:cni5swxj8kop@brd.superproxy.io:9222",
+
+  //launch browser using bright datas endpoint
+  const browser = await puppeteer.connect({
+    headless: false,
+    // args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    browserWSEndpoint: process.env.BRIGHT_DATA_ENDPOINT
   });
 
   const date = moment().format("YYYY-MM-DD");
@@ -400,79 +453,28 @@ const start = async (tryResume) => {
 
   await sleep(5000);
 
+
+
   //first collect all names and urls, to then go back to get the details like, storage,color price
   var allPhonesLinks = await getLinks(page,10,true);
 
+  //get all available combinations
   const availableCombinations = await getAllAvailablePhoneCombinations(page,allPhonesLinks,true);
 
   var allPlans = [];
 
-  if(tryResume){
-    try{
-    allPlans = JSON.parse(fs.readFileSync(`./carphonewarehouse_phones6-plans4-${moment().format("YYYY-MM-DD")}.json`));
-    }catch(e){
-        allPlans = [];
-    }
-  }
-
-//   var isValid = findPlansFromArray(allPlans,"https://www.carphonewarehouse.com/samsung-galaxy-s23-ultra-refurbished-256GB-green");
-//   console.log(isValid);
 
   for(var i = 0; i<availableCombinations.length; i++){
-
-    var cur = availableCombinations[i];
-
-
-    var newCombi = [];
-
-    for (var j = 0; j < cur.combinations.length; j++) {
-      const combination = cur.combinations[j];
-    //   const isExist = findPlansFromArray(allPlans,combination.url)
-
-        var url = combination.url
-
-        const isExist = findPlansFromArray(allPlans,url);
-
-        console.log(isExist);
-
-        if(isExist==false){
-            newCombi.push(combination);
-        }
-
-     
-    }
-
-    cur.combinations = newCombi;
-
-    console.log(newCombi.length);
-
-  
-
-
+    //scrape all plans
     const plans = await getAllPlansFromCombination(page,availableCombinations[i]);
 
-    allPlans = mergeIntoPlan(allPlans,plans);
+    allPlans.push(plans);
 
-
-
-
-
-    allPlans.push(...plans);
-    fs.writeFileSync(`./carphonewarehouse_phones6-plans4-${moment().format("YYYY-MM-DD")}.json`,JSON.stringify(allPlans,null,2));
+    fs.writeFileSync(`./${rootdir}/carphonewarehouse_phones6-plans5-${moment().format("YYYY-MM-DD")}.json`,JSON.stringify(allPlans,null,2));
 
     console.log(`${i}/${availableCombinations.length}`);
-    break;
   }
 
-
-
-  
-
- 
-
-  // console.log(allPhonesLinks);
-
-  await page.screenshot({ path: "carphonewarehouse2.png", fullPage: true });
 
   await browser.close();
 };

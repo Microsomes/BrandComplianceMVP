@@ -7,7 +7,9 @@ const browser = await puppeteer.launch({
   devtools: true,
   args: ['--no-sandbox', '--disable-setuid-sandbox'], // Useful for some environments
   defaultViewport: null, // Disable the default viewport
-  });
+  #
+
+});
 const page = await browser.newPage();
 
 // Navigate the page to a URL.
