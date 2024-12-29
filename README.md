@@ -12,41 +12,22 @@ Use Bright Data’s Web Scraper API for efficient and scalable data collection.
 
 Idea:
 
-Company Brand Compliance 
 
-S: I am Apple and i want to ensure if users on certain websites such as
-    - Carphone Warehouse
-    - Vodafone
-    - Amazon UK
+Aggregate Monthly Phone plans from carphone warehouse.
+Carphone warehouse sells monthly phone contracts from vodafone and ID,
 
-Search for the term Iphone the website does not get suggest any phone that is not Iphone or apple related
-
-I want to pay companies a bonus for complying with Apples Brand Compliance Rules
-
-Search Compliance Feature
+i want to collect the entire selection of their phones and all their plans including capacity and storage of phones available
 
 
-Terms: (search per day)
-Apple Phone -> if no violations -> score = 1, Violation = Score =0
+I've used AWS ECS as my platform to run the scrape jobs,
+
+since it could take a 2-3 hours to scrape the entire website it should be done once daily or weekly to save money
+
+i've placed the code in scrapeJobs/scrapes/carphone/carphone_bright.js
+
+I used Brightdatas webbrowser, to avoid any blocks
+
+I used AWS CDK to deploy this to my AWS Account and provision a task definition,
 
 
-//score per month should be 25 or fail for that month
-
-
-//create an Laravel App (for now lets just make it in the context of Apple, to save time on this MVP)
-
-
-Models:
-    User
-    Rules:
-        - Search term
-        - Found Term (Samsung),//special rules
-        - penantly = -1 if fail
-        - Website URL
-
-    Scrapes:
-        - Rule ID
-        - Timestamp
-        - Score
-    
-^ more models may be required
+This is a laravel project which i used to fetch the scraped data from s3, as once the scrape is completed it uploads the entire data to s3 per day.
