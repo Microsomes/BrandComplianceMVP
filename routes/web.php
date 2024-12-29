@@ -7,7 +7,12 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
 
-    $phones = \App\Models\Phone::with('combinations')->get();
+    $phones = \App\Models\Phone::with([
+        'combinations' => function ($query) {
+            $query->with('plans');
+        }
+    ])->get();
+
 
 
     return Inertia::render('Phones', [

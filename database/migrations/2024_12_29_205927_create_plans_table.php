@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('minutes');
             $table->string('texts');
             $table->string('network');
+            $table->string('url');
 
 
 

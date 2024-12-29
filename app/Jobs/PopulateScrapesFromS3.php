@@ -95,6 +95,7 @@ class PopulateScrapesFromS3 implements ShouldQueue
                     'minutes' => $minutes,
                     'texts' => $texts,
                     'contract_length' => $contractLength,
+                    'url' => $url
                 ]);
 
 
